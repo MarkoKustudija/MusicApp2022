@@ -15,9 +15,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.MusicApp2022.service.AddressService;
 import com.example.MusicApp2022.service.UserService;
+import com.example.MusicApp2022.shared.dto.AddressDto;
 import com.example.MusicApp2022.shared.dto.UserDto;
 import com.example.MusicApp2022.ui.request.model.UserRequestDetailsModel;
+import com.example.MusicApp2022.ui.response.model.AddressRest;
 import com.example.MusicApp2022.ui.response.model.OperationStatusModel;
 import com.example.MusicApp2022.ui.response.model.RequestOperationName;
 import com.example.MusicApp2022.ui.response.model.RequestOperationStatus;
@@ -29,6 +32,9 @@ public class UserController {
 	
 	@Autowired
 	UserService userService;
+	
+	@Autowired
+	AddressService addressService;
 	
 	@PostMapping
 	public UserRest create (@RequestBody UserRequestDetailsModel userDetails) {
@@ -54,6 +60,38 @@ public class UserController {
 		
 		ModelMapper modelMapper = new ModelMapper();
 		returnValue = modelMapper.map(userDto, UserRest.class);
+		
+		return returnValue;
+		
+	}
+	
+	@GetMapping(path = "/{id}/addresses")
+	public List<AddressRest> getAddresses(@PathVariable String id){
+		
+		List<AddressRest> returnValue = new ArrayList<>();
+		
+		List<AddressDto> addresses = addressService.getAddresses(id);
+	
+		for(AddressDto addressDto : addresses) {
+			AddressRest restModel = new AddressRest();
+		    ModelMapper modelMapper = new ModelMapper();
+		    modelMapper.map(addressDto, restModel);
+		    returnValue.add(restModel);
+		}
+		
+		return returnValue;
+		
+	}
+	
+	
+	@GetMapping(path = "/{id}/addresses/{addressId}")
+	public AddressRest getAddress(@PathVariable String addressId) {
+		
+		AddressRest returnValue = new AddressRest();
+		AddressDto addressDto = addressService.getAddressById(addressId);
+		
+		ModelMapper modelMapper = new ModelMapper();
+		returnValue = modelMapper.map(addressDto, AddressRest.class);
 		
 		return returnValue;
 		
