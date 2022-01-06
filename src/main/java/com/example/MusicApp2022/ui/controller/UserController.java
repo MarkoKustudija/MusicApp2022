@@ -1,9 +1,11 @@
 package com.example.MusicApp2022.ui.controller;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -48,14 +50,32 @@ public class UserController {
 	@GetMapping(path = "/{id}")
 	public UserRest getUser(@PathVariable String id) {
 		
-		return null;
+		UserRest returnValue = new UserRest();
+		UserDto userDto = userService.getUser(id);
+		
+		ModelMapper modelMapper = new ModelMapper();
+		returnValue = modelMapper.map(userDto, UserRest.class);
+		
+		return returnValue;
 		
 	}
 	
 	@GetMapping
 	public List<UserRest> getUsers(@RequestParam(value = "page", defaultValue = "0")int page,
 			@RequestParam(value = "limit", defaultValue = "25") int limit){
-				return null;
+		
+		List<UserRest> returnValue = new ArrayList<>();
+		List<UserDto> users = userService.getUsers(page, limit);
+		
+		for(UserDto userDto : users) {
+			UserRest modelRest = new UserRest();
+			ModelMapper modelMapper = new ModelMapper();
+			modelMapper.map(userDto, modelRest);
+			returnValue.add(modelRest);
+		}
+		
+		
+		return returnValue;
 		
 	}
 	
