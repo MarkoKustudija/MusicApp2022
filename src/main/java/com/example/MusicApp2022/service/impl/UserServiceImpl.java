@@ -1,7 +1,13 @@
 package com.example.MusicApp2022.service.impl;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.example.MusicApp2022.io.entity.UserEntity;
@@ -49,6 +55,43 @@ public class UserServiceImpl implements UserService{
 	}
 	
 	@Override
+	public UserDto getUser(String id) {
+		
+		UserDto returnValue = new UserDto();
+		UserEntity userEntity = userRepository.findByUserId(id);
+		
+		if(userEntity == null)
+			throw new RuntimeException("Recor not found!");
+		
+		ModelMapper modelMapper = new ModelMapper();
+		returnValue = modelMapper.map(userEntity, UserDto.class);
+		
+		return returnValue;
+	}
+	
+	@Override
+	public List<UserDto> getUsers(int page, int limit) {
+		
+		List<UserDto> returnValue = new ArrayList<>();
+		
+		Pageable pageableRequest = PageRequest.of(page, limit);
+		
+		Page<UserEntity> userPages = userRepository.findAll(pageableRequest);
+		
+		List<UserEntity> users = userPages.getContent();
+		
+		for(UserEntity userEntity : users) {
+			UserDto userDto = new UserDto();
+			ModelMapper modelMapper = new ModelMapper();
+			modelMapper.map(userEntity, userDto);
+			returnValue.add(userDto);
+		}
+		return returnValue;
+	}
+	
+	
+	
+	@Override
 	public void delete(String id) {
 
 		UserEntity userEntity = userRepository.findByUserId(id);
@@ -60,4 +103,8 @@ public class UserServiceImpl implements UserService{
 		userRepository.delete(userEntity);
 		
 	}
+
+	
+
+	
 }
