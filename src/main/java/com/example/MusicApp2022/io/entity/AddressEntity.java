@@ -18,7 +18,7 @@ public class AddressEntity {
 	@GeneratedValue
 	private Long id;
     @Column
-	private String addressesId;
+	private String addressId;
     @Column
 	private String city;
     @Column
@@ -41,11 +41,12 @@ public class AddressEntity {
 	public void setId(Long id) {
 		this.id = id;
 	}
-	public String getAddressesId() {
-		return addressesId;
+	
+	public String getAddressId() {
+		return addressId;
 	}
-	public void setAddressesId(String addressesId) {
-		this.addressesId = addressesId;
+	public void setAddressId(String addressId) {
+		this.addressId = addressId;
 	}
 	public String getCity() {
 		return city;

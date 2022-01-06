@@ -2,7 +2,7 @@ package com.example.MusicApp2022.ui.response.model;
 
 public class AddressRest {
 
-	private String addressesId;
+	private String addressId;
 	private String city;
 	private String country;
 	private String streetName;
@@ -10,16 +10,18 @@ public class AddressRest {
 	private String type;
 //	private UserRest userDetails;
 
-	public String getAddressesId() {
-		return addressesId;
-	}
 
-	public void setAddressesId(String addressesId) {
-		this.addressesId = addressesId;
-	}
 
 	public String getCity() {
 		return city;
+	}
+
+	public String getAddressId() {
+		return addressId;
+	}
+
+	public void setAddressId(String addressId) {
+		this.addressId = addressId;
 	}
 
 	public void setCity(String city) {
