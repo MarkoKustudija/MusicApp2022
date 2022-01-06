@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -81,7 +80,16 @@ public class UserController {
 	
 	@PutMapping(path = "/{id}")
 	public UserRest update(@PathVariable String id, @RequestBody UserRequestDetailsModel userDetails) {
-		return null;
+		
+		UserRest returnValue = new UserRest();
+		ModelMapper modelMapper = new ModelMapper();
+		
+		UserDto userDto = modelMapper.map(userDetails, UserDto.class);
+		
+		UserDto updatedUser = userService.updateUser(id, userDto);
+		returnValue = modelMapper.map(updatedUser, UserRest.class);
+		
+		return returnValue;
 		
 	}
 	

@@ -14,4 +14,6 @@ public interface UserService {
 
 	List<UserDto> getUsers(int page, int limit);
 
+	UserDto updateUser(String id, UserDto userDto);
+
 }
