@@ -89,6 +89,28 @@ public class UserServiceImpl implements UserService{
 		return returnValue;
 	}
 	
+
+	@Override
+	public UserDto updateUser(String id, UserDto userDto) {
+
+		UserDto returnValue = new UserDto();
+		
+		UserEntity userEntity = userRepository.findByUserId(id);
+		
+		if(userEntity == null)
+			throw new RuntimeException("Record not found!");
+		
+		userEntity.setFirstName(userDto.getFirstName());
+		userEntity.setLastName(userDto.getLastName());
+		
+		ModelMapper modelMapper = new ModelMapper();
+		UserEntity updatedUser = userRepository.save(userEntity);
+		
+		returnValue = modelMapper.map(updatedUser, UserDto.class);
+		
+		return returnValue;
+	}
+	
 	
 	
 	@Override
@@ -103,6 +125,7 @@ public class UserServiceImpl implements UserService{
 		userRepository.delete(userEntity);
 		
 	}
+
 
 	
 
