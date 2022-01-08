@@ -4,10 +4,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.example.MusicApp2022.io.entity.UserEntity;
@@ -25,6 +30,9 @@ public class UserServiceImpl implements UserService{
 	
 	@Autowired
 	Utils utils;
+	
+	@Autowired
+	BCryptPasswordEncoder bCryptPasswordEncoder;
 
 
 
@@ -46,7 +54,11 @@ public class UserServiceImpl implements UserService{
 		UserEntity userEntity = modelMapper.map(userDto, UserEntity.class);
 		
 		String publicUserId = utils.generateUserId(30);
+		
 		userEntity.setUserId(publicUserId);
+		userEntity.setEncryptedPassword(bCryptPasswordEncoder.encode(userDto.getPassword()));
+		userEntity.setEmailVerificationToken(utils.generateEmailVerificationToken(publicUserId));
+		userEntity.setEmailVerificationStatus(false);
 		
 		UserEntity createdUser = userRepository.save(userEntity);
 		returnValue = modelMapper.map(createdUser, UserDto.class);
@@ -54,17 +66,37 @@ public class UserServiceImpl implements UserService{
 		return returnValue;
 	}
 	
+
 	@Override
-	public UserDto getUser(String id) {
+	public UserDto getUserByUserId(String id) {
 		
 		UserDto returnValue = new UserDto();
 		UserEntity userEntity = userRepository.findByUserId(id);
 		
 		if(userEntity == null)
-			throw new RuntimeException("Recor not found!");
+			throw new UsernameNotFoundException(id);
 		
 		ModelMapper modelMapper = new ModelMapper();
 		returnValue = modelMapper.map(userEntity, UserDto.class);
+//		BeanUtils.copyProperties(userEntity, returnValue);
+		
+		return returnValue;
+		
+	}
+	
+
+	@Override
+	public UserDto getUser(String email) {
+		
+		UserDto returnValue = new UserDto();
+		UserEntity userEntity = userRepository.findByEmail(email);
+		
+		if(userEntity == null)
+			throw new UsernameNotFoundException(email);
+		
+//		ModelMapper modelMapper = new ModelMapper();
+//		returnValue = modelMapper.map(userEntity, UserDto.class);
+		BeanUtils.copyProperties(userEntity, returnValue);
 		
 		return returnValue;
 	}
@@ -125,6 +157,19 @@ public class UserServiceImpl implements UserService{
 		userRepository.delete(userEntity);
 		
 	}
+
+	@Override
+	public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+
+		UserEntity userEntity = userRepository.findByEmail(email);
+		
+		if(userEntity == null) 
+			throw new UsernameNotFoundException(email);
+		
+		return new User(userEntity.getEmail(), userEntity.getEncryptedPassword(), new ArrayList<>());
+	}
+
+
 
 
 	

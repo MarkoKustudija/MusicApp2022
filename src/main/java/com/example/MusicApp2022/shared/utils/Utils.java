@@ -1,9 +1,17 @@
 package com.example.MusicApp2022.shared.utils;
 
 import java.security.SecureRandom;
+import java.util.Date;
 import java.util.Random;
 
 import org.springframework.stereotype.Component;
+
+import com.example.MusicApp2022.security.SecurityConstants;
+
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 
 @Component
 public class Utils {
@@ -50,5 +58,47 @@ public class Utils {
 	        return new String(returnValue);
 	        
 	    }
+	    
+	 // check if token has expired
+		public static boolean hasTokenExpired(String token) {
+
+			boolean returnValue = false;
+
+			try {
+
+				Claims claims = Jwts.parser().setSigningKey(SecurityConstants.getTokenSecret()).parseClaimsJws(token)
+						.getBody();
+
+				Date tokenExpirationDate = claims.getExpiration();
+				Date todayDate = new Date();
+
+				returnValue = tokenExpirationDate.before(todayDate);
+
+			} catch (ExpiredJwtException ex) {
+
+				returnValue = true;
+			}
+
+			return returnValue;
+		}
+
+		// generate Email Verification Token
+		public String generateEmailVerificationToken(String userId) {
+			String token = Jwts.builder().setSubject(userId)
+					.setExpiration(new Date(System.currentTimeMillis() + SecurityConstants.EXPIRATION_TIME))
+					.signWith(SignatureAlgorithm.HS512, SecurityConstants.getTokenSecret()).compact();
+			return token;
+
+		}
+
+		public String generatePasswordResetToken(String userId) {
+
+			String token = Jwts.builder().setSubject(userId)
+					.setExpiration(new Date(System.currentTimeMillis() + SecurityConstants.PASSWORD_RESET_EXPIRATION_TIME))
+					.signWith(SignatureAlgorithm.HS512, SecurityConstants.getTokenSecret()).compact();
+			return token;
+
+		}
+
 
 }
