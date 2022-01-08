@@ -56,7 +56,7 @@ public class UserController {
 	public UserRest getUser(@PathVariable String id) {
 		
 		UserRest returnValue = new UserRest();
-		UserDto userDto = userService.getUser(id);
+		UserDto userDto = userService.getUserByUserId(id);
 		
 		ModelMapper modelMapper = new ModelMapper();
 		returnValue = modelMapper.map(userDto, UserRest.class);

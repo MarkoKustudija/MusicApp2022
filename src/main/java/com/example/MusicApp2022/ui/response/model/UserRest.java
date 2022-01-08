@@ -4,11 +4,11 @@ import java.util.List;
 
 public class UserRest {
 
+	
 	private String userId;
 	private String firstName;
 	private String lastName;
 	private String email;
-	private String password;
 	private List<AddressRest> addresses;
 
 	public String getUserId() {
@@ -43,13 +43,6 @@ public class UserRest {
 		this.email = email;
 	}
 
-	public String getPassword() {
-		return password;
-	}
-
-	public void setPassword(String password) {
-		this.password = password;
-	}
 
 	public List<AddressRest> getAddresses() {
 		return addresses;
