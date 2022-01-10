@@ -19,6 +19,8 @@ import com.example.MusicApp2022.service.AddressService;
 import com.example.MusicApp2022.service.UserService;
 import com.example.MusicApp2022.shared.dto.AddressDto;
 import com.example.MusicApp2022.shared.dto.UserDto;
+import com.example.MusicApp2022.ui.request.model.PasswordResetModel;
+import com.example.MusicApp2022.ui.request.model.PasswordResetRequestModel;
 import com.example.MusicApp2022.ui.request.model.UserRequestDetailsModel;
 import com.example.MusicApp2022.ui.response.model.AddressRest;
 import com.example.MusicApp2022.ui.response.model.OperationStatusModel;
@@ -51,6 +53,55 @@ public class UserController {
 		return returnValue;
 		
 	}
+	
+     ///// RESET PASSWORD //////
+/**	  http://localhost:8080/api/v1/users/password-reset-request   */
+	
+	@PostMapping(path = "/password-reset-request")
+	public OperationStatusModel requestReset(@RequestBody PasswordResetRequestModel passwordResetRequestModel) {
+		
+		OperationStatusModel returnValue = new OperationStatusModel();
+		
+		boolean operationResult = userService.requestPasswordReset(passwordResetRequestModel.getEmail());
+		
+		returnValue.setOperationName(RequestOperationName.REQUEST_PASSWORD_RESET.name());
+		returnValue.setOperationResult(RequestOperationStatus.ERROR.name());
+		
+		if(!operationResult) {
+			 returnValue.setOperationResult(RequestOperationStatus.SUCCESS.name());
+			}
+		
+
+		return returnValue;
+		
+	}
+	
+
+/**	  http://localhost:8080/api/v1/users/password-reset */
+	@PostMapping(path = "/password-reset")
+	public OperationStatusModel resetPassword(@RequestBody PasswordResetModel passwordResetModel) {
+		
+		
+		OperationStatusModel returnValue = new OperationStatusModel();
+		
+		boolean operationResult = userService.resetPassword(
+				
+				passwordResetModel.getToken(),
+				passwordResetModel.getPassword());
+		
+		returnValue.setOperationName(RequestOperationName.RESET_PASSWORD.name());
+		returnValue.setOperationResult(RequestOperationStatus.ERROR.name());
+		
+		if(operationResult) {
+			 returnValue.setOperationResult(RequestOperationStatus.SUCCESS.name());
+			}
+		
+
+		return returnValue;
+		
+	}
+	
+ ///////////////////////////////////////////////////////////////////	
 	
 	@GetMapping(path = "/{id}")
 	public UserRest getUser(@PathVariable String id) {

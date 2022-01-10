@@ -20,6 +20,10 @@ public interface UserService  extends UserDetailsService{
 
 	UserDto getUserByUserId(String id);
 
+	boolean requestPasswordReset(String email);
+
+	boolean resetPassword(String token, String password);
+
 	
 
 	

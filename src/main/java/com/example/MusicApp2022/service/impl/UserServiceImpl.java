@@ -15,7 +15,9 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.example.MusicApp2022.io.entity.PasswordResetTokenEntity;
 import com.example.MusicApp2022.io.entity.UserEntity;
+import com.example.MusicApp2022.io.repository.PasswordResetTokenRepository;
 import com.example.MusicApp2022.io.repository.UserRepository;
 import com.example.MusicApp2022.service.UserService;
 import com.example.MusicApp2022.shared.dto.AddressDto;
@@ -27,6 +29,9 @@ public class UserServiceImpl implements UserService{
 	
 	@Autowired
 	UserRepository userRepository;
+	
+	@Autowired
+	PasswordResetTokenRepository passwordResetTokenRepository;
 	
 	@Autowired
 	Utils utils;
@@ -167,6 +172,66 @@ public class UserServiceImpl implements UserService{
 			throw new UsernameNotFoundException(email);
 		
 		return new User(userEntity.getEmail(), userEntity.getEncryptedPassword(), new ArrayList<>());
+	}
+
+
+	@Override
+	public boolean requestPasswordReset(String email) {
+
+		boolean returnValue = false;
+		
+		UserEntity userEntity = userRepository.findByEmail(email);
+		
+
+		if(userEntity == null) 
+		   throw new RuntimeException("Record doesn't exist!");
+		
+		String token = new Utils().generatePasswordResetToken(userEntity.getUserId());
+		
+		PasswordResetTokenEntity passwordResetTokenEntity = new PasswordResetTokenEntity();
+		passwordResetTokenEntity.setToken(token);
+		passwordResetTokenEntity.setUserDetails(userEntity);
+		passwordResetTokenRepository.save(passwordResetTokenEntity);
+		
+		
+		
+		return returnValue;
+	}
+
+
+	@Override
+	public boolean resetPassword(String token, String password) {
+		boolean returnValue = false;
+		
+		if(Utils.hasTokenExpired(token) ) {
+			return returnValue;
+		}
+		
+		PasswordResetTokenEntity passwordResetTokenEntity = passwordResetTokenRepository.findByToken(token);
+		
+		if(passwordResetTokenEntity == null) {
+			return returnValue;
+		}
+		
+		// Prepare new password
+		String encodedPassword = bCryptPasswordEncoder.encode(password);
+		
+		//Update user password in database
+		UserEntity userEntity = passwordResetTokenEntity.getUserDetails();
+		userEntity.setEncryptedPassword(encodedPassword);
+		UserEntity savedUserEntity = userRepository.save(userEntity);
+		
+		// Verify if password was saved successfully
+		if(savedUserEntity != null && savedUserEntity.getEncryptedPassword().equalsIgnoreCase(encodedPassword)) {
+		 
+			returnValue = true;
+		}
+		
+		// Remove Password reset token from database
+		passwordResetTokenRepository.delete(passwordResetTokenEntity);
+		
+		
+		return returnValue;
 	}
 
 
