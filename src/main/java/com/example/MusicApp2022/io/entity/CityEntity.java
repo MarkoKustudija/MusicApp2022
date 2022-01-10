@@ -26,7 +26,7 @@ public class CityEntity  implements Serializable{
 	private String cityId;
 	@Column
 	private String city;
-	@Column
+	@Column(length = 3)
 	private String country;
 	
 	@OneToMany(mappedBy = "cityDetails", cascade = CascadeType.ALL)
