@@ -90,7 +90,7 @@ public class Utils {
 			return token;
 
 		}
-
+        
 		public String generatePasswordResetToken(String userId) {
 
 			String token = Jwts.builder().setSubject(userId)
