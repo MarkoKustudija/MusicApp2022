@@ -26,7 +26,7 @@ public class FestivalEntity implements Serializable {
 	private Long id;
 	@Column
 	private String festivalId;
-	@Column
+	@Column(nullable = false, unique = true)
 	private String festivalName;
 	@Column
 	private LocalDate dateStarts;
