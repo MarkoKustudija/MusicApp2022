@@ -49,7 +49,7 @@ public class WebSecurutiy extends WebSecurityConfigurerAdapter{
 		.permitAll()
 		.antMatchers(HttpMethod.POST, SecurityConstants.PASSWORD_RESET_URL)
 		.permitAll()
-		.antMatchers(HttpMethod.DELETE,"/users/*").hasRole("ADMIN")
+		.antMatchers(HttpMethod.DELETE,"/users/**").hasRole("ADMIN")
 		.anyRequest().authenticated().and()
 //		.addFilter(new AuthenticationFilter(authenticationManager()));
 		.addFilter(getAuthenticationFilter())

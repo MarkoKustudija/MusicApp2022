@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -109,6 +110,7 @@ public class UserController {
 	
  ///////////////////////////////////////////////////////////////////	
 	
+	@PostAuthorize("hasRole('ADMIN') or returnObject.userId == principal.userId")
 	@GetMapping(path = "/{id}")
 	public UserRest getUser(@PathVariable String id) {
 		
@@ -140,7 +142,6 @@ public class UserController {
 		
 	}
 	
-	
 	@GetMapping(path = "/{id}/addresses/{addressId}")
 	public AddressRest getAddress(@PathVariable String addressId) {
 		
@@ -154,6 +155,7 @@ public class UserController {
 		
 	}
 	
+	@PostAuthorize("hasRole('ADMIN')")
 	@GetMapping
 	public List<UserRest> getUsers(@RequestParam(value = "page", defaultValue = "0")int page,
 			@RequestParam(value = "limit", defaultValue = "25") int limit){
@@ -173,6 +175,7 @@ public class UserController {
 		
 	}
 	
+	@PreAuthorize("hasRole('ROLE_ADMIN') or #id == principal.userId")
 	@PutMapping(path = "/{id}")
 	public UserRest update(@PathVariable String id, @RequestBody UserRequestDetailsModel userDetails) {
 		
@@ -188,7 +191,7 @@ public class UserController {
 		
 	}
 	
-	@PreAuthorize("hasRole('ROLE_ADMIN')")
+	@PreAuthorize("hasRole('ROLE_ADMIN') or #id == principal.userId")
 	@DeleteMapping(path = "/{id}")
 	public OperationStatusModel delete(@PathVariable String id) {
 		
