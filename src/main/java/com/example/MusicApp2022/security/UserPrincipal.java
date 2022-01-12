@@ -1,10 +1,14 @@
 package com.example.MusicApp2022.security;
 
 import java.util.Collection;
+import java.util.HashSet;
 
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import com.example.MusicApp2022.io.entity.AuthorityEntity;
+import com.example.MusicApp2022.io.entity.RoleEntity;
 import com.example.MusicApp2022.io.entity.UserEntity;
 
 public class UserPrincipal implements UserDetails {
@@ -24,7 +28,25 @@ public class UserPrincipal implements UserDetails {
 
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
-		return null;
+		
+		Collection<GrantedAuthority> authorities = new HashSet<>();
+	    Collection<AuthorityEntity> authorityEntities = new HashSet<>();
+		
+		Collection< RoleEntity> roles = userEntity.getRoles();
+		if(roles == null) return authorities;
+		
+		roles.forEach((role) -> {
+			authorities.add(new SimpleGrantedAuthority(role.getName()));
+			authorityEntities.addAll(role.getAuthorities());
+			
+		});
+		
+		authorityEntities.forEach((authorityEntity) -> {
+			authorities.add(new SimpleGrantedAuthority(authorityEntity.getName()));
+			
+		});
+		
+		return authorities;
 	}
 
 	@Override
