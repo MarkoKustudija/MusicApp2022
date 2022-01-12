@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -52,6 +51,10 @@ public class UserServiceImpl implements UserService{
 	public UserDto createUser(UserDto userDto) {
 		
 		UserDto returnValue = new UserDto();
+		
+		if(userRepository.findByEmail(userDto.getEmail()) != null)
+			throw new IllegalStateException("Record already exist!");
+		
 		ModelMapper modelMapper = new ModelMapper();
 		
 		for(int i=0; i < userDto.getAddresses().size(); i++) {
