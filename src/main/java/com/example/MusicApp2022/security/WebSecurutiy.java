@@ -17,6 +17,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import com.example.MusicApp2022.io.repository.UserRepository;
 import com.example.MusicApp2022.service.UserService;
+import com.example.MusicApp2022.shared.utils.Roles;
 
 @EnableGlobalMethodSecurity(securedEnabled = true, prePostEnabled = true)
 @EnableWebSecurity
@@ -48,10 +49,11 @@ public class WebSecurutiy extends WebSecurityConfigurerAdapter{
 		.permitAll()
 		.antMatchers(HttpMethod.POST, SecurityConstants.PASSWORD_RESET_URL)
 		.permitAll()
+		.antMatchers(HttpMethod.DELETE,"/users/*").hasRole("ADMIN")
 		.anyRequest().authenticated().and()
 //		.addFilter(new AuthenticationFilter(authenticationManager()));
 		.addFilter(getAuthenticationFilter())
-		.addFilter(new AuthorizationFilter(authenticationManager()))
+		.addFilter(new AuthorizationFilter(authenticationManager(), userRepository))
 		.sessionManagement()
         .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 //		http.headers().frameOptions().disable();
@@ -62,7 +64,7 @@ public class WebSecurutiy extends WebSecurityConfigurerAdapter{
 		auth.userDetailsService(userService).passwordEncoder(bCryptPasswordEncoder);	
 	}
 	
-	//custom user authentication  login url
+	//custom user authentication  login URL
 	public AuthenticationFilter getAuthenticationFilter() throws Exception {
 	    final AuthenticationFilter filter = new AuthenticationFilter(authenticationManager());
 	    filter.setFilterProcessesUrl("/users/login");

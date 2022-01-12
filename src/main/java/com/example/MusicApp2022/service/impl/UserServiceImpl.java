@@ -1,6 +1,8 @@
 package com.example.MusicApp2022.service.impl;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 
 import org.modelmapper.ModelMapper;
@@ -16,9 +18,12 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.example.MusicApp2022.io.entity.PasswordResetTokenEntity;
+import com.example.MusicApp2022.io.entity.RoleEntity;
 import com.example.MusicApp2022.io.entity.UserEntity;
 import com.example.MusicApp2022.io.repository.PasswordResetTokenRepository;
+import com.example.MusicApp2022.io.repository.RoleRepository;
 import com.example.MusicApp2022.io.repository.UserRepository;
+import com.example.MusicApp2022.security.UserPrincipal;
 import com.example.MusicApp2022.service.UserService;
 import com.example.MusicApp2022.shared.dto.AddressDto;
 import com.example.MusicApp2022.shared.dto.UserDto;
@@ -39,6 +44,8 @@ public class UserServiceImpl implements UserService{
 	@Autowired
 	BCryptPasswordEncoder bCryptPasswordEncoder;
 
+	@Autowired
+	RoleRepository roleRepository;
 
 
 	@Override
@@ -53,6 +60,7 @@ public class UserServiceImpl implements UserService{
 			addressDto.setAddressId(utils.generateAddressId(30));
 			addressDto.setUserDetails(userDto);
 			userDto.getAddresses().set(i, addressDto);
+			
 				
 		}
 		
@@ -64,6 +72,20 @@ public class UserServiceImpl implements UserService{
 		userEntity.setEncryptedPassword(bCryptPasswordEncoder.encode(userDto.getPassword()));
 		userEntity.setEmailVerificationToken(utils.generateEmailVerificationToken(publicUserId));
 		userEntity.setEmailVerificationStatus(false);
+		
+		// Set roles
+		Collection<RoleEntity> roles = new HashSet<>();
+		
+		for(String role : userDto.getRoles()) {
+			RoleEntity roleEntity = roleRepository.findByName(role);
+			
+			if(roleEntity != null) {
+				roles.add(roleEntity);
+			}
+			
+		}
+		
+		userEntity.setRoles(roles);
 		
 		UserEntity createdUser = userRepository.save(userEntity);
 		returnValue = modelMapper.map(createdUser, UserDto.class);
@@ -171,7 +193,8 @@ public class UserServiceImpl implements UserService{
 		if(userEntity == null) 
 			throw new UsernameNotFoundException(email);
 		
-		return new User(userEntity.getEmail(), userEntity.getEncryptedPassword(), new ArrayList<>());
+//		return new User(userEntity.getEmail(), userEntity.getEncryptedPassword(), new ArrayList<>());
+		return new UserPrincipal(userEntity);
 	}
 
 
